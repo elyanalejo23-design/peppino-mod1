@@ -1,1 +1,22 @@
-
+name: Build PeppinoMod
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [Win32, x64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get GameAPI
+        run: git clone --recursive https://github.com/RSDKModding/RSDKv5-GameAPI.git GameAPI
+      - name: Configure
+        run: cmake -S . -B build -A ${{ matrix.arch }}
+      - name: Build
+        run: cmake --build build --config Release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PeppinoMod-${{ matrix.arch }}
+          path: |
+            build/Release/PeppinoMod.dll
+            PeppinoMod/mod.ini
